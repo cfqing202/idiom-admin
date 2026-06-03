@@ -1,0 +1,28 @@
+# 依赖目录
+node_modules/
+
+# 本地环境变量
+.env
+.env.local
+.env.*.local
+
+# IDE 配置
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 构建输出
+dist/
+build/
+
+# 日志文件
+*.log
+npm-debug.log*
+
+# 微信/抖音小游戏开发者工具自动生成
+project.config.json.backup
