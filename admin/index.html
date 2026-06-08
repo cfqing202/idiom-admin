@@ -138,7 +138,7 @@
         <div class="page-header"><h2 class="page-title">每日挑战数据</h2></div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-label">今日参与人数</div><div class="stat-value" id="daily-players">-</div></div>
-          <div class="stat-card"><div class="stat-label">完成人数</div><div class="stat-value" id="daily-passed">-</div></div>
+          <div class="stat-card"><div class="stat-label">过关人数</div><div class="stat-value" id="daily-passed">-</div></div>
           <div class="stat-card"><div class="stat-label">完成率</div><div class="stat-value" id="daily-rate">-</div></div>
           <div class="stat-card"><div class="stat-label">平均连胜</div><div class="stat-value" id="daily-streak">-</div></div>
         </div>
@@ -273,7 +273,8 @@
           var uid = data[i].user_id;
           if (!uid) continue;
           uniqueUsers[uid] = true;
-          if (data[i].is_passed) passedUsers[uid] = true;
+          // 过关 = 当日有任意一局的连续胜场 >= 5（表示完成了每日冲关）
+          if (data[i].consecutive_wins >= 5) passedUsers[uid] = true;
           totalStreak += data[i].consecutive_wins || 0;
         }
         var totalPlayers = Object.keys(uniqueUsers).length;
