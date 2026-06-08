@@ -265,12 +265,13 @@
           streakEl.textContent = '0';
           return;
         }
-        // 按唯一 user_id 统计
+        // 按唯一 user_id 统计（跳过 user_id 为 null 的无效记录）
         var uniqueUsers = {};
         var passedUsers = {};
         var totalStreak = 0;
         for (var i = 0; i < data.length; i++) {
           var uid = data[i].user_id;
+          if (!uid) continue;
           uniqueUsers[uid] = true;
           if (data[i].is_passed) passedUsers[uid] = true;
           totalStreak += data[i].consecutive_wins || 0;
