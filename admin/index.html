@@ -251,8 +251,8 @@
     
     function loadDailyStats() {
       var today = new Date().toISOString().split('T')[0];
-      // 查今日所有游戏记录
-      api('/rest/v1/game_history?select=*&play_date=eq.' + today).then(function(data) {
+      // 只统计有 user_id 的真实用户记录
+      api('/rest/v1/game_history?select=*&play_date=eq.' + today + '&user_id.not.is.null').then(function(data) {
         var playersEl = document.getElementById('daily-players');
         var passedEl = document.getElementById('daily-passed');
         var rateEl = document.getElementById('daily-rate');
