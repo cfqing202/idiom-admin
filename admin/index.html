@@ -265,17 +265,23 @@
           streakEl.textContent = '0';
           return;
         }
-        var totalPlayers = data.length;
-        var passedCount = 0;
+        // 按唯一 user_id 统计
+        var uniqueUsers = {};
+        var passedUsers = {};
         var totalStreak = 0;
         for (var i = 0; i < data.length; i++) {
-          if (data[i].is_passed) passedCount++;
+          var uid = data[i].user_id;
+          uniqueUsers[uid] = true;
+          if (data[i].is_passed) passedUsers[uid] = true;
           totalStreak += data[i].consecutive_wins || 0;
         }
+        var totalPlayers = Object.keys(uniqueUsers).length;
+        var passedCount = Object.keys(passedUsers).length;
+        var avgStreak = totalPlayers > 0 ? (totalStreak / totalPlayers).toFixed(1) : '0';
         playersEl.textContent = totalPlayers;
         passedEl.textContent = passedCount;
-        rateEl.textContent = Math.round(passedCount / totalPlayers * 100) + '%';
-        streakEl.textContent = (totalStreak / totalPlayers).toFixed(1);
+        rateEl.textContent = totalPlayers > 0 ? Math.round(passedCount / totalPlayers * 100) + '%' : '0%';
+        streakEl.textContent = avgStreak;
       });
     }
     
