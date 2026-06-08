@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>猴哥成语大冲关 - 后台管理系统</title>
+  <title>成语哆哆 - 后台管理系统</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #eaeaea; min-height: 100vh; }
@@ -64,7 +64,7 @@
 </head>
 <body>
   <header class="header">
-    <h1>🐵 猴哥成语大冲关 - 后台管理</h1>
+    <h1>🐵 成语哆哆 - 后台管理</h1>
     <div class="header-right">
       <div class="user-info">
         <div class="avatar">A</div>
@@ -137,10 +137,10 @@
       <div class="page" id="page-daily">
         <div class="page-header"><h2 class="page-title">每日挑战数据</h2></div>
         <div class="stats-grid">
-          <div class="stat-card"><div class="stat-label">今日参与人数</div><div class="stat-value">-</div></div>
-          <div class="stat-card"><div class="stat-label">完成人数</div><div class="stat-value">-</div></div>
-          <div class="stat-card"><div class="stat-label">完成率</div><div class="stat-value">-</div></div>
-          <div class="stat-card"><div class="stat-label">平均连胜</div><div class="stat-value">-</div></div>
+          <div class="stat-card"><div class="stat-label">今日参与人数</div><div class="stat-value" id="daily-players">-</div></div>
+          <div class="stat-card"><div class="stat-label">完成人数</div><div class="stat-value" id="daily-passed">-</div></div>
+          <div class="stat-card"><div class="stat-label">完成率</div><div class="stat-value" id="daily-rate">-</div></div>
+          <div class="stat-card"><div class="stat-label">平均连胜</div><div class="stat-value" id="daily-streak">-</div></div>
         </div>
       </div>
       
@@ -157,7 +157,7 @@
         <div class="card" style="max-width:500px">
           <div class="card-header"><span class="card-title">基本设置</span></div>
           <div class="card-body" style="padding:20px">
-            <div class="form-group"><label class="form-label">游戏名称</label><input type="text" class="form-input" value="猴哥成语大冲关"></div>
+            <div class="form-group"><label class="form-label">游戏名称</label><input type="text" class="form-input" value="成语哆哆"></div>
             <div class="form-group"><label class="form-label">每局游戏时间(秒)</label><input type="number" class="form-input" value="10"></div>
             <button class="btn btn-primary">保存设置</button>
           </div>
@@ -249,6 +249,36 @@
       });
     }
     
+    function loadDailyStats() {
+      var today = new Date().toISOString().split('T')[0];
+      // 查今日所有游戏记录
+      api('/rest/v1/game_history?select=*&play_date=eq.' + today).then(function(data) {
+        var playersEl = document.getElementById('daily-players');
+        var passedEl = document.getElementById('daily-passed');
+        var rateEl = document.getElementById('daily-rate');
+        var streakEl = document.getElementById('daily-streak');
+        if (!playersEl) return;
+        if (!data || data.length === 0) {
+          playersEl.textContent = '0';
+          passedEl.textContent = '0';
+          rateEl.textContent = '0%';
+          streakEl.textContent = '0';
+          return;
+        }
+        var totalPlayers = data.length;
+        var passedCount = 0;
+        var totalStreak = 0;
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].is_passed) passedCount++;
+          totalStreak += data[i].consecutive_wins || 0;
+        }
+        playersEl.textContent = totalPlayers;
+        passedEl.textContent = passedCount;
+        rateEl.textContent = Math.round(passedCount / totalPlayers * 100) + '%';
+        streakEl.textContent = (totalStreak / totalPlayers).toFixed(1);
+      });
+    }
+    
     window.openModal = function(id) { var el = document.getElementById(id); if (el) el.classList.add('active'); };
     window.closeModal = function(id) { var el = document.getElementById(id); if (el) el.classList.remove('active'); };
     
@@ -265,6 +295,7 @@
         if (page === 'dashboard') loadStats();
         if (page === 'users') loadUsers();
         if (page === 'questions') loadIdioms();
+        if (page === 'daily') loadDailyStats();
       };
     }
     
