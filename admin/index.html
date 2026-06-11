@@ -90,9 +90,9 @@
         </div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-label">总用户数</div><div class="stat-value" id="stat-users">-</div></div>
-          <div class="stat-card"><div class="stat-label">今日活跃用户</div><div class="stat-value">-</div></div>
-          <div class="stat-card"><div class="stat-label">今日游戏次数</div><div class="stat-value">-</div></div>
-          <div class="stat-card"><div class="stat-label">今日完成挑战</div><div class="stat-value">-</div></div>
+          <div class="stat-card"><div class="stat-label">今日活跃用户</div><div class="stat-value" id="stat-daily-users">-</div></div>
+          <div class="stat-card"><div class="stat-label">今日游戏次数</div><div class="stat-value" id="stat-daily-sessions">-</div></div>
+          <div class="stat-card"><div class="stat-label">今日完成挑战</div><div class="stat-value" id="stat-daily-challenge">-</div></div>
         </div>
       </div>
       
@@ -197,6 +197,31 @@
       api('/rest/v1/users?select=id').then(function(data) {
         var el = document.getElementById('stat-users');
         if (el && data) el.textContent = data.length || 0;
+      });
+      // 今日游戏统计
+      var today = new Date().toISOString().split('T')[0];
+      api('/rest/v1/game_history?select=user_id,is_passed,consecutive_wins&play_date=eq.' + today + '&user_id.not.is.null').then(function(data) {
+        var usersEl = document.getElementById('stat-daily-users');
+        var sessionsEl = document.getElementById('stat-daily-sessions');
+        var challengeEl = document.getElementById('stat-daily-challenge');
+        if (!usersEl) return;
+        if (!data || data.length === 0) {
+          usersEl.textContent = '0';
+          sessionsEl.textContent = '0';
+          challengeEl.textContent = '0';
+          return;
+        }
+        var uniqueUsers = {};
+        var challengeUsers = {};
+        for (var i = 0; i < data.length; i++) {
+          var uid = data[i].user_id;
+          if (!uid) continue;
+          uniqueUsers[uid] = true;
+          if (data[i].consecutive_wins >= 5) challengeUsers[uid] = true;
+        }
+        usersEl.textContent = Object.keys(uniqueUsers).length;
+        sessionsEl.textContent = data.length;
+        challengeEl.textContent = Object.keys(challengeUsers).length;
       });
     }
     
